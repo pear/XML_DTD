@@ -16,8 +16,8 @@
   </maintainers>
 
   <release>
-    <license>LGPL</license>
-    <version>0.2</version>
+    <license>PHP 2.01</license>
+    <version>0.3</version>
     <date>2002-02-23</date>
     <state>alpha</state>
     <notes>Initial release</notes>
