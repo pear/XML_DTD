@@ -1,0 +1,56 @@
+<foo>
+<test1 />
+<test1><a/><a/></test1>
+<test1><b/></test1>
+<test1><bbb/></test1>
+<test1><a/><bbb/></test1>
+
+<test2 />
+<test2><b/></test2>
+<test2><bbb/><aaa/><c/></test2>
+<test2><a/><a/><a/></test2>
+<test2><c/><a/><c/><bbb/><dddd/></test2>
+
+<test3><dddd/></test3>
+
+<test4/>
+<test4><a/></test4>
+<test4><a/><c/></test4>
+<test4><a/><bbb/><c/></test4>
+<test4><dddd/><c/><bbb/><a/></test4>
+<test4><a/><bbb/><c/><c/><dddd/></test4>
+
+<test5/>
+<test5><a/></test5>
+<test5><a/><c/></test5>
+<test5><a/><bbb/><c/></test5>
+<test5><dddd/><c/><bbb/><a/></test5>
+<test5><a/><bbb/><c/><c/><dddd/></test5>
+
+<test6><a/><bbb/></test6>
+<test6><a/><bbb/><c/></test6>
+<test6><a/><c/><c/></test6>
+
+<test7 />
+<test7><c/></test7>
+<test7><a/><bbb/></test7>
+<test7><a/><c/><c/></test7>
+<test7><a/><dddd/><dddd/></test7>
+<test7><a/><c/><dddd/></test7>
+<test7><a/><dddd/><c/></test7>
+
+<test8 />
+<test8><bbb/></test8>
+<test8><a/><a/><dddd/></test8>
+<test8><a/><c/></test8>
+<test8><c/></test8>
+<test8><a/><a/><dddd/><c/></test8>
+<test8><a/><a/><dddd/><dddd/><c/></test8>
+
+<test9 />
+<test9><c/></test9>
+<test9><a/><dddd/></test9>
+<test9><bbb/></test9>
+<test9><c/><c/></test9>
+
+</foo>

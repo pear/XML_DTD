@@ -1,0 +1,16 @@
+<!ELEMENT foo (test1|test2|test3|test4|test5|test6|test7|test8|test9)+>
+
+<!ELEMENT a EMPTY>
+<!ELEMENT bbb EMPTY>
+<!ELEMENT c EMPTY>
+<!ELEMENT dddd EMPTY>
+
+<!ELEMENT test1 (a)>
+<!ELEMENT test2 (a|bbb|c|dddd)>
+<!ELEMENT test3 (a|bbb)*>
+<!ELEMENT test4 (a,bbb,c,dddd)>
+<!ELEMENT test5 (a,bbb,c,dddd)+>
+<!ELEMENT test6 ((a|bbb),(c|dddd))>
+<!ELEMENT test7 (a,(c|dddd))>
+<!ELEMENT test8 (a?,dddd+,c*)>
+<!ELEMENT test9 (a,(c|bbb)*)>

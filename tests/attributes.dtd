@@ -1,0 +1,20 @@
+<!ELEMENT foo (string|enum)+>
+<!ELEMENT string EMPTY>
+<!ELEMENT enum EMPTY>
+<!ATTLIST string
+        att1   CDATA    #IMPLIED
+        att2   CDATA    #REQUIRED
+        att3   CDATA    #FIXED "POST"
+        att4   CDATA    "mydefault">
+<!ATTLIST enum
+        en1   (bullets|ordered|glossary)  "ordered"
+        en2   (pkg|ext|php|prog|ldlib)    #REQUIRED
+        en3   (has|eq|lt|le|gt|ge)        #IMPLIED>
+<!ATTLIST unsupported
+        att1   ID       #IMPLIED
+        att2   IDREF    #IMPLIED
+        att3   IDREFS   #IMPLIED
+        att4   NMTOKEN  #IMPLIED
+        att5   NMTOKENS #IMPLIED>
+<!ATTLIST notdeclared
+        not    CDATA    #IMPLIED>

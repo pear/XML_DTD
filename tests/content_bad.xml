@@ -1,0 +1,14 @@
+<foo>
+<!-- test undeclared tag under content only nodes -->
+<bar><i_should_be_content/></bar>
+<bar2><i_should_be_content/></bar2>
+<bar3><i_should_be_content/></bar3>
+<!-- test declared tags under content only nodes -->
+<bar><jack/></bar>
+<bar2><jack/></bar2>
+<bar3><jack/></bar3>
+<!-- test not empty tag when declared as EMPTY -->
+<bar3>I should be empty</bar3>
+<!-- mixed content test -->
+<bar4><bar2/></bar4>
+</foo>

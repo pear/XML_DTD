@@ -1,0 +1,6 @@
+<!ELEMENT foo (bar|bar2|bar3|bar4)+>
+<!ELEMENT bar (#PCDATA)>
+<!ELEMENT bar2 ANY>
+<!ELEMENT bar3 EMPTY>
+<!ELEMENT jack EMPTY>
+<!ELEMENT bar4 (#PCDATA|jack|bar3)*>

@@ -1,0 +1,13 @@
+- Finish tests
+- Add error codes and better error reporting
+- Compile a feature list of supported DTD commands
+- Read <!DOCTYPE ..> and get the DTD in XML_Validator
+- Create a real php script instead of "tests/test.php"
+- More TODO's inside the comments of .php files
+- Add API Doc comments
+
+WISH:
+- Build a DTD Validator
+- Use directly sax instead of XML_Tree for partially
+  validating instead of consuming a lot of memory
+  creating the xml tree

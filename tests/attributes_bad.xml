@@ -1,0 +1,20 @@
+<foo>
+<!-- Test required att2 and with no att1 -->
+<string/>
+<!-- Test required att2 and with att1 -->
+<string att1="any" />
+<!-- Test FIXED -->
+<string att2="any" att3="should be POST" />
+<!-- Enum required n2 missing -->
+<enum />
+<!-- Enum en2 present but invalid -->
+<enum en2="im not valid" />
+<!-- Enum en2 correct but n1 invalid -->
+<enum en2="pkg" en1="im not valid" />
+<!-- Enum en2 correct but en3 invalid -->
+<enum en2="ldlib" en3="im not valid" />
+<!-- Not declared tests -->
+<string not="im not valid" />
+<string att2="any" not="im not valid" />
+<string att2="any" notdeclared="any" />
+</foo>

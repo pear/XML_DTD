@@ -1,0 +1,11 @@
+<foo>
+<string att2="any" />
+<string att1="any" att2="any2" />
+<string att1="any" att2="any2" att3="POST" />
+<string att1="any" att2="any2" att3="POST" att4="any" />
+
+<enum en2="ext" />
+<enum en2="ext" en1="ordered" />
+<enum en2="prog" en1="glossary" en3="ge" />
+
+</foo>

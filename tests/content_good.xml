@@ -1,0 +1,7 @@
+<foo>
+<bar>im the content</bar>
+<bar2>im the content</bar2>
+<bar3></bar3>
+<bar3 />
+<bar4>www<jack/>zzzz<jack/><bar3/>asd</bar4>
+</foo>
