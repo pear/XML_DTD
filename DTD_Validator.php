@@ -95,13 +95,20 @@ class XML_DTD_Validator
         if (isset($this->dtd['elements'][$name]['attributes'])) {
             $atts = $this->dtd['elements'][$name]['attributes'];
             foreach ($atts as $attname => $attvalue) {
-                $opts = $attvalue['opts'];
-                $prop = $attvalue['prop'];
-                if ($prop == '#REQUIRED' && !isset($node_atts[$attname])) {
+                $opts    = $attvalue['opts'];
+                $default = $attvalue['defaults'];
+                if ($default == '#REQUIRED' && !isset($node_atts[$attname])) {
                     $this->errors("missing required '$attname' attribute in <$name>");
+                }
+                if ($default == '#FIXED') {
+                    if (isset($node_atts[$attname]) && $node_atts[$attname] != $attvalue['fixed']) {
+                        $this->errors("The value '{$node_atts[$attname]}' for attribute '$attname' ".
+                                      "in <$name> can only be '{$attvalue['fixed']}'");
+                    }
                 }
                 if (isset($node_atts[$attname])) {
                     $node_val = $node_atts[$attname];
+                    // Enumerated type validation
                     if (is_array($opts)) {
                         if (!in_array($node_val, $opts)) {
                             $this->errors("'$node_val' value for attribute '$attname' under <$name> ".
