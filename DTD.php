@@ -70,11 +70,11 @@ class XML_DTD_Parser
             $repls = array();
             foreach ($m[1] as $entity) {
                 // Internal entities
-                if (preg_match('|^%?\s+([a-zA-Z0-9.]+)\s+"([^"]*)"\s*$|s', $entity, $n)) {
+                if (preg_match('/^%?\s+([a-zA-Z0-9.\-]+)\s+(["\'])(.*)\2\s*$/s', $entity, $n)) {
                     // entity name
                     $id = '/%' . $n[1] . ';/';
                     // replacement text
-                    $repl = $n[2];
+                    $repl = $n[3];
                     $ids[] = $id;
                     $repls[] = $repl;
                 // XXX PUBLIC | SYSTEM | NDATA
@@ -175,7 +175,7 @@ class XML_DTD_Parser
         } else {
             $content = null;
             do {
-                $children = preg_split('/([^#a-zA-Z0-9.]+)/', $ch, -1, PREG_SPLIT_NO_EMPTY);
+                $children = preg_split('/([^#a-zA-Z0-9.-]+)/', $ch, -1, PREG_SPLIT_NO_EMPTY);
                 if (($i = array_search('#PCDATA', $children)) !== false) {
                     $content = '#PCDATA';
                     if (count($children) == 1) {
@@ -186,7 +186,7 @@ class XML_DTD_Parser
                 $this->dtd['elements'][$elem_name]['child_validation_dtd_regex'] = $ch;
                 // Convert the DTD regex language into PCRE regex format
                 $reg = str_replace(',', ',?', $ch);
-                $reg = preg_replace('/([#a-zA-Z0-9.]+)/', '(,?\\0)', $reg);
+                $reg = preg_replace('/([#a-zA-Z0-9.-]+)/', '(,?\\0)', $reg);
                 $this->dtd['elements'][$elem_name]['child_validation_pcre_regex'] = $reg;
             } while (false);
         }
