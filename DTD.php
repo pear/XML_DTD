@@ -1,7 +1,7 @@
 <?php
 //
 // +----------------------------------------------------------------------+
-// | DTD class                                                            |
+// | XML_DTD package                                                      |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 2003 Tomas Von Veschler Cox                            |
 // +----------------------------------------------------------------------+
@@ -21,47 +21,47 @@
 //
 
 /*
-DTD tree format:
-
-[elements] => array(
-    <tag name> => array(
-        [children] => array(
-                0 => <child name>                //allowed children array
-            ),
-        [child_validation_pcre_regex] => string, // The regex for validating
-                                                 // the list of childs
-        [child_validation_dtd_regex] => string,  // The DTD element declaration
-        [content] => string                      // null, #PCDATA, EMPTY or ANY
-        [attributes] => array(
-            <att name> => array(
-                [opts] => (array|string),        // enumerated or CDATA
-                [defaults] => (#IMPLIED|#REQUIRED|#FIXED|value),
-                [fixed_value] => string          // only when defaults is #FIXED
-            )
-        )
-    )
-)
-
 TODO:
     - Entities: PUBLIC | SYSTEM | NDATA
     - Tokenized types for ATTLIST
     - others ...
 */
 
-/*
-Usage:
-
-// Create a new XML_DTD parser object
-$dtd_parser = new XML_DTD_Parser;
-// Do the parse and return a DTD_Tree object
-// containing the above mentioned tree.
-$dtd_tree = $dtd_parser->parse($dtd_file);
-
+/**
+ * XML_DTD_Parser
+ * 
+ * Usage:
+ * 
+ * <code>
+ * <?php
+ * // Create a new XML_DTD parser object
+ * $dtd_parser = new XML_DTD_Parser;
+ * // Do the parse and return a XML_DTD_Tree object
+ * // containing the DTD tree representatio.
+ * $dtd_tree = $dtd_parser->parse($dtd_file);
+ * ?>
+ * </code>
+ * 
+ * @package XML_DTD
+ * @category XML
+ * @author Tomas V.V.Cox <cox@idecnet.com> 
+ * @copyright Copyright (c) 2003
+ * @version $Id$
+ * @access public 
 */
 class XML_DTD_Parser
 {
     var $dtd = array();
 
+    /**
+     * XML_DTD_Parser::_parseENTITIES()
+     * 
+     * Do entities preprocessing
+     * 
+     * @param string $str 
+     * @return string 
+     * @access private 
+     */
     function _parseENTITIES($str)
     {
         // Find all ENTITY tags
@@ -107,6 +107,14 @@ class XML_DTD_Parser
         return $str;
     }
 
+    /**
+     * XML_DTD_Parser::parse()
+     * 
+     * @param string $cont      it could be either a filename or a string
+     * @param boolean $is_file  if the first param is supposed to be a string
+     *                          or a filename
+     * @return object           a XML_DTD_Tree object
+     */
     function parse($cont, $is_file = true)
     {
         if ($is_file) {
@@ -160,7 +168,15 @@ class XML_DTD_Parser
         return new XML_DTD_Tree($this->dtd);
     }
 
-
+    /**
+     * XML_DTD_Parser::_ELEMENT()
+     * 
+     * Handles the ELEMENT parsing
+     * 
+     * @param array $data $data[0] the element, $data[1] the string with allowed childs
+     * @return null
+     * @access private
+     */
     function _ELEMENT($data)
     {
         // $data[0] the element
@@ -176,7 +192,7 @@ class XML_DTD_Parser
             $content = null;
             do {
                 $children = preg_split('/([^#a-zA-Z0-9.-]+)/', $ch, -1, PREG_SPLIT_NO_EMPTY);
-                if (($i = array_search('#PCDATA', $children)) !== false) {
+                if (in_array('#PCDATA', $children)) {
                     $content = '#PCDATA';
                     if (count($children) == 1) {
                         $children = array();
@@ -196,6 +212,15 @@ class XML_DTD_Parser
         $this->dtd['elements'][$elem_name]['content']  = $content;
     }
 
+    /**
+     * XML_DTD_Parser::_ATTLIST()
+     * 
+     * Handles the ATTLIST parsing
+     * 
+     * @param array $data $data[0] the element name, $data[1] string with the attributes
+     * @return null
+     * @access private 
+     */
     function _ATTLIST($data)
     {
         $elem = $data[0];
@@ -206,11 +231,11 @@ class XML_DTD_Parser
             $opts = $data[$i+1];
             if ($opts{0} == '(' && $opts{strlen($opts)-1} == ')') {
                 $a['opts'] = preg_split('/\||,/',
-                                     preg_replace('|\s+|',
-                                                  '',
-                                                  substr($opts, 1, -1)
-                                                 )
-                                    );
+                                        preg_replace('|\s+|',
+                                                     '',
+                                                     substr($opts, 1, -1)
+                                                    )
+                                       );
             } else {
                 $a['opts'] = $opts; // XXX ID is missing yet
             }
@@ -227,33 +252,108 @@ class XML_DTD_Parser
     }
 }
 
+/**
+ * XML_DTD_Tree
+ * 
+ * DTD tree format:
+ * 
+ * <code>
+ * [elements] => array(
+ *      <tag name> => array(
+ *          [children] => array(
+ *              0 => <child name>                    //allowed children array
+ *          ),
+ *          [child_validation_pcre_regex] => string, // The regex for validating
+ *                                                   // the list of childs
+ *          [child_validation_dtd_regex] => string,  // The DTD element declaration
+ *          [content] => string                      // null, #PCDATA, EMPTY or ANY
+ *          [attributes] => array(
+ *              <att name> => array(
+ *                  [opts] => (array|string),        // enumerated or CDATA
+ *                  [defaults] => (#IMPLIED|#REQUIRED|#FIXED|value),
+ *                  [fixed_value] => string          // only when defaults is #FIXED
+ *              )
+ *          )
+ *      )
+ * )
+ * </code>
+ * 
+ * @package XML_DTD
+ * @category XML
+ * @author Tomas V.V.Cox <cox@idecnet.com> 
+ * @copyright Copyright (c) 2003
+ * @version $Id$
+ * @access public 
+ */
 class XML_DTD_Tree
 {
+    /**
+     * XML_DTD_Tree::XML_DTD_Tree()
+     *
+     * The DTD tree array comming from XML_DTD_Parse->parse()
+     *  
+     * @param array $tree
+     **/
     function XML_DTD_Tree($tree)
     {
         $this->dtd = $tree;
     }
 
+    /**
+     * XML_DTD_Tree::getChildren()
+     * 
+     * @param string $elem
+     * @return array
+     **/
     function getChildren($elem)
     {
         return $this->dtd['elements'][$elem]['children'];
     }
 
+    /**
+     * XML_DTD_Tree::getContent()
+     * 
+     * @param string $elem
+     * @return string
+     **/
     function getContent($elem)
     {
         return $this->dtd['elements'][$elem]['content'];
     }
 
+    /**
+     * XML_DTD_Tree::getPcreRegex()
+     * 
+     * Return the perl regular expresion used for validating
+     * the children of a node
+     * 
+     * @param string $elem
+     * @return string
+     **/
     function getPcreRegex($elem)
     {
         return $this->dtd['elements'][$elem]['child_validation_pcre_regex'];
     }
 
+    /**
+     * XML_DTD_Tree::getDTDRegex()
+     * 
+     * Return the DTD element definition for $elem
+     * 
+     * @param string $elem
+     * @return string
+     **/
     function getDTDRegex($elem)
     {
         return $this->dtd['elements'][$elem]['child_validation_dtd_regex'];
     }
 
+    /**
+     * XML_DTD_Tree::getAttributes()
+     * 
+     * @param $elem
+     * @return array
+     **/
     function getAttributes($elem)
     {
         if (!isset($this->dtd['elements'][$elem]['attributes'])) {
@@ -262,6 +362,12 @@ class XML_DTD_Tree
         return $this->dtd['elements'][$elem]['attributes'];
     }
 
+    /**
+     * XML_DTD_Tree::elementIsDeclared()
+     * 
+     * @param string $elem
+     * @return bool
+     **/
     function elementIsDeclared($elem)
     {
         return isset($this->dtd['elements'][$elem]);
