@@ -33,13 +33,11 @@ TODO:
  * Usage:
  * 
  * <code>
- * <?php
  * // Create a new XML_DTD parser object
  * $dtd_parser = new XML_DTD_Parser;
  * // Do the parse and return a XML_DTD_Tree object
  * // containing the DTD tree representatio.
  * $dtd_tree = $dtd_parser->parse($dtd_file);
- * ?>
  * </code>
  * 
  * @package XML_DTD
