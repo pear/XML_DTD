@@ -47,7 +47,9 @@ class XML_DTD_Validator
     {
         $name = $node->name;
         if (!isset($this->dtd['elements'][$name])) {
-            $this->errors("tag <$name> not defined in DTD");
+            $this->errors("No declaration for tag <$name> in DTD");
+            // We don't run over the childs of undeclared elements
+            // contrary of what xmllint does
             return;
         }
         $dtd_childs = $this->dtd['elements'][$name]['children'];
@@ -72,19 +74,19 @@ class XML_DTD_Validator
             switch ($req) {
                 case null:
                     if ($num < 1) {
-                        $this->errors("missing tag <$chname> in <$name>");
+                        $this->errors("Missing required tag <$chname> in <$name>");
                     } elseif ($num > 1) {
-                        $this->errors("only one <$chname> tag allowed under <$name>");
+                        $this->errors("Only one <$chname> tag allowed under <$name>");
                     }
                     break;
                 case '+':
                     if ($num < 1) {
-                        $this->errors("elem <$name> must have at least one <$chname>");
+                        $this->errors("Element <$name> must have at least one <$chname>");
                     }
                     break;
                 case '?':
                     if ($num != 0 || $num != 1) {
-                        $this->errors("elem <$name> must have one or zero <$chname>");
+                        $this->errors("Element <$name> must have one or zero <$chname>");
                     }
                     break;
             }
@@ -98,7 +100,7 @@ class XML_DTD_Validator
                 $opts    = $attvalue['opts'];
                 $default = $attvalue['defaults'];
                 if ($default == '#REQUIRED' && !isset($node_atts[$attname])) {
-                    $this->errors("missing required '$attname' attribute in <$name>");
+                    $this->errors("Missing required '$attname' attribute in <$name>");
                 }
                 if ($default == '#FIXED') {
                     if (isset($node_atts[$attname]) && $node_atts[$attname] != $attvalue['fixed']) {
@@ -121,8 +123,8 @@ class XML_DTD_Validator
         }
         // If there are still elements those are not defined
         if (count($node_atts) > 0) {
-            $this->errors("the attributes: '" . implode(', ', array_keys($node_atts)) .
-                          "' are not defined in the DTD for tag <$name>");
+            $this->errors("The attributes: '" . implode(', ', array_keys($node_atts)) .
+                          "' for tag <$name> are not declared in DTD");
         }
 
         // Continue through the tree
