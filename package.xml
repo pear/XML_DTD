@@ -54,7 +54,7 @@ unsupported.
       </dir>
     </filelist>
     <deps>
-        <dep type="pkg" rel="ge" version="1.0">XML_Tree</dep>
+        <dep type="pkg" rel="ge" version="2.0b1">XML_Tree</dep>
     </deps>
   </release>
 
