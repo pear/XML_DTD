@@ -24,10 +24,10 @@ unsupported.
   </maintainers>
 
   <release>
-    <version>0.3</version>
-    <date>2002-02-23</date>
+    <version>0.4</version>
+    <date>2003-09-11</date>
     <state>alpha</state>
-    <notes>Initial release</notes>
+    <notes>Initial release as XML_DTD (previously was DTD)</notes>
     <filelist>
       <dir name="/" baseinstalldir="XML">
          <file role="php">DTD.php</file>
