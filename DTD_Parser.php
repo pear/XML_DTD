@@ -55,7 +55,6 @@ class XML_DTD_Parser
         // Remove DTD comments
         $cont = preg_replace('|<!--.*-->|Us', '', $cont);
         if (preg_match_all('|<!([^>]+)>|s', $cont, $m)) {
-            print_r($m);exit;
             foreach ($m[1] as $tag) {
                 $fields = array();
                 $in = 0;
@@ -102,7 +101,6 @@ class XML_DTD_Parser
     {
         $elem_name  = $data[0];
         $ch = str_replace(' ', '', $data[1]);
-        echo "\n$ch\n";
         // Content
         if ($ch{0} != '(') {
             $content = $ch;
