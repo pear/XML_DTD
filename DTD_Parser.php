@@ -52,7 +52,10 @@ class XML_DTD_Parser
     function parse($file)
     {
         $cont = join('', file($file));
+        // Remove DTD comments
+        $cont = preg_replace('|<!--.*-->|Us', '', $cont);
         if (preg_match_all('|<!([^>]+)>|s', $cont, $m)) {
+            print_r($m);exit;
             foreach ($m[1] as $tag) {
                 $fields = array();
                 $in = 0;
@@ -99,7 +102,7 @@ class XML_DTD_Parser
     {
         $elem_name  = $data[0];
         $ch = str_replace(' ', '', $data[1]);
-        //echo "\n$ch\n";
+        echo "\n$ch\n";
         // Content
         if ($ch{0} != '(') {
             $content = $ch;
@@ -109,7 +112,8 @@ class XML_DTD_Parser
             $props = array('+', '*', '?');
             $content = $buff = null;
             $groups = array();
-            $in = 0;
+            $currents = array(0);
+            $in = $cu = 0;
             /*
                 $ch = (header,(body*|mimepart|(a*|b)+)?)*
             */
@@ -126,42 +130,43 @@ class XML_DTD_Parser
                         if ($buff == '#PCDATA') {
                             $content = '#PCDATA';
                         } elseif (strlen($buff)) {
-                            $groups[$in][] = $buff;
+                            $cu = $currents[count($currents) - 1];
+                            $groups[$cu][] = $buff;
                             $buff = null;
                         }
                         break;
                     case '(':
-                        $current = $in;
                         do {
                             $in++;
                         } while (isset($groups[$in]));
+                        array_push($currents, $in);
                         // In this place there is a group of elements instead of
                         // only one element. This special element name remarks that
-                        $groups[$current][] = "__groupno_$in";
+                        $groups[$cu][] = "__groupno_$in";
                         break;
                     case ')':
                         if ($buff == '#PCDATA') {
                             $content = '#PCDATA';
                         } elseif (strlen($buff)) {
-                            $groups[$in][] = $buff;
+                            $cu = $currents[count($currents) - 1];
+                            $groups[$cu][] = $buff;
                             $buff = null;
                         }
+                        $in = array_pop($currents);
 
                         if ($i+1 < strlen($ch) && in_array($ch{$i+1}, $props)) {
                             // Default group property ex: (a|b)* -> *
                             $groups[$in]['defaults'] = $ch{$i+1};
                             $i++;
                         }
-                        $in--;
+
                         break;
                     default:
                         $buff .= $ch{$i};
                 }
             }
-            //print_r($groups);
         }
-        // Allowed children elements under this tag in the form:
-        // ..['children'] => array('tag' => (null|*|+|?), 'tag2' => ..))
+        // Tree of rules for elements under this tag
         $this->dtd['elements'][$elem_name]['children'] = $groups;
         // Either null, #PCDATA, EMPTY or ANY
         $this->dtd['elements'][$elem_name]['content']  = $content;
