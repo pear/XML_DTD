@@ -1,8 +1,29 @@
 <?php
+//
+// +----------------------------------------------------------------------+
+// | XML_DTD_Validator class                                              |
+// +----------------------------------------------------------------------+
+// | Copyright (c) 2002 Tomas Von Veschler Cox                            |
+// +----------------------------------------------------------------------+
+// | This source file is subject to version 2.02 of the PHP license,      |
+// | that is bundled with this package in the file LICENSE, and is        |
+// | available at through the world-wide-web at                           |
+// | http://www.php.net/license/2_02.txt.                                 |
+// | If you did not receive a copy of the PHP license and are unable to   |
+// | obtain it through the world-wide-web, please send a note to          |
+// | license@php.net so we can mail you a copy immediately.               |
+// +----------------------------------------------------------------------+
+// | Authors: Tomas V.V.Cox <cox@idecnet.com>                             |
+// |                                                                      |
+// +----------------------------------------------------------------------+
+//
+// $Id$
+//
+
 require_once 'XML/DTD_Parser.php';
 require_once 'XML/Tree.php';
 
-class DTD_Validator
+class XML_DTD_Validator
 {
 
     var $dtd = array();
@@ -26,7 +47,7 @@ class DTD_Validator
     {
         $name = $node->name;
         if (!isset($this->dtd['elements'][$name])) {
-            $this->errors("tag <$name> not defined in DTD\n");
+            $this->errors("tag <$name> not defined in DTD");
             return;
         }
         $dtd_childs = $this->dtd['elements'][$name]['children'];
@@ -51,7 +72,7 @@ class DTD_Validator
             switch ($req) {
                 case null:
                     if ($num < 1) {
-                        $this->errors("missing elem <$chname> under <$name>");
+                        $this->errors("missing tag <$chname> in <$name>");
                     } elseif ($num > 1) {
                         $this->errors("only one <$chname> tag allowed under <$name>");
                     }
@@ -108,7 +129,7 @@ class DTD_Validator
         $this->errors .= "$str\n";
     }
 
-    function getError()
+    function getMessage()
     {
         return $this->errors;
     }
