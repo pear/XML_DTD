@@ -93,6 +93,8 @@ class XML_DTD_XmlValidator
     {
         //echo "Parsing node: $node->name\n";
         $children = array();
+        $lines    = array();
+
         // Get the list of children under the parent node
         foreach ($node->children as $child) {
             // a text node
@@ -101,8 +103,10 @@ class XML_DTD_XmlValidator
             } else {
                 $children[] = $child->name;
             }
+            $lines[]    = $child->lineno;
         }
-        $this->_validateNode($node, $children);
+
+        $this->_validateNode($node, $children, $lines);
         // Recursively run the tree
         foreach ($node->children as $child) {
             if (strlen($child->name)) {
@@ -119,10 +123,11 @@ class XML_DTD_XmlValidator
      * 
      * @param object $node an XML_Tree_Node type object
      * @param array  $children the list of children
+     * @param array  $linenos  linenumbers of the children
      * @return null
      * @access private
      **/
-    function _validateNode($node, $children)
+    function _validateNode($node, $children, $linenos)
     {
         $name = $node->name;
         $lineno = $node->lineno;
@@ -145,11 +150,13 @@ class XML_DTD_XmlValidator
             }
             // Search for children names not allowed
             $was_error = false;
+            $i = 0;
             foreach ($children as $child) {
                 if (!in_array($child, $dtd_children)) {
-                    $this->_errors("<$child> not allowed under <$name>", $lineno);
+                    $this->_errors("<$child> not allowed under <$name>", $linenos[$i]);
                     $was_error = true;
                 }
+                $i++;
             }
             // Validate the order of the children
             if (!$was_error && count($dtd_children)) {
