@@ -28,6 +28,7 @@ DTD tree format:
         [children] => array(
             <allowed children tag> => <requirement>
         ),
+        [content] => string               // null, #PCDATA, EMPTY or ANY
         [attributes] => array(
             <att name> => array(
                 [opts] => (array|string), // enumerated or CDATA
@@ -39,7 +40,6 @@ DTD tree format:
 )
 
 TODO:
-    - Nested lists of ELEMENT values
     - Tokenized types for ATTLIST
     - ENTITY element
     - <!ELEMENT %name.para; %content.para; >
@@ -55,23 +55,21 @@ class XML_DTD_Parser
         if (preg_match_all('|<!([^>]+)>|s', $cont, $m)) {
             foreach ($m[1] as $tag) {
                 $fields = array();
-                $split = true;
+                $in = 0;
                 $buff = '';
                 $tag = preg_replace('|\s+|s', ' ', $tag);
                 // Manual split the parts of the elements
+                // take care of netsted lists (a|(c|d)|b)
                 for ($i = 0; $i < strlen($tag); $i++) {
-                    if ($tag{$i} == ' ' && $split && $buff) {
+                    if ($tag{$i} == ' ' && !$in && $buff) {
                         $fields[] = $buff;
                         $buff = '';
                         continue;
                     }
                     if ($tag{$i} == '(') {
-                        if ($split == false) { // XXX (a|(b|c)|d)
-                            trigger_error("Nested lists not supported yet", E_USER_WARNING);
-                        }
-                        $split = false;
+                        $in++;
                     } elseif ($tag{$i} == ')') {
-                        $split = true;
+                        $in--;
                     }
                     $buff .= $tag{$i};
                 }
@@ -99,29 +97,89 @@ class XML_DTD_Parser
 
     function ELEMENT($data)
     {
-        $childs_str = $data[1];
-        if (substr($childs_str, -1) != ')') {
-            $list_prop  = substr($childs_str, -1);
-            $childs_str = substr($childs_str, 1, -2);
+        $elem_name  = $data[0];
+        $ch = str_replace(' ', '', $data[1]);
+        // Content
+        if ($ch{0} != '(') {
+            $content = $ch;
+            $children = array();
+        // Enumerated list of childs
         } else {
-            $list_prop  = null;
-            $childs_str = substr($childs_str, 1, -1);
-        }
-        $childs = preg_split('/\||,/', preg_replace('|\s+|', '', $childs_str));
-        $props = array('+', '*', '?');
-        $c = array();
-        foreach ($childs as $child) {
-            $prop = null;
-            if (in_array(substr($child, -1), $props)) {
-                $prop  = substr($child, -1);
-                $child = substr($child, 0, -1);
+            $props = array('+', '*', '?');
+            $content = $buff = null;
+            $groups = $defaults = array();
+            $in = 0;
+            /*
+                $ch = (header,(body*|mimepart|(a*|b)+)?)*
+            */
+            for ($i = 0; $i < strlen($ch); $i++) {
+                switch ($ch{$i}) {
+                    case '|':
+                    case ',':
+                        $groups[$in][] = $buff;
+                        $buff = '';
+                        break;
+                    case '(':
+                        $in++;
+                        break;
+                    case ')':
+                        if ($buff) {
+                            $groups[$in][] = $buff;
+                            $buff = '';
+                        }
+                        if ($i+1 < strlen($ch) && in_array($ch{$i+1}, $props)) {
+                            $defaults[$in] = $ch{$i+1}; // Group property
+                            $i++;
+                        }
+                        $in--;
+                        break;
+                    default:
+                        $buff .= $ch{$i};
+                }
             }
-            if (!$prop && $list_prop) {
-                $prop = $list_prop;
+            /*
+                $groups = Array
+                (
+                    [1] => Array
+                        (
+                            [0] => header
+                        )
+                    [2] => Array
+                        (
+                            [0] => body*
+                            [1] => mimepart
+                        )
+                    [3] => Array
+                        (
+                            [0] => a*
+                            [1] => b
+                        )
+                )
+            */
+            $children = array();
+            foreach ($groups as $key => $group) {
+                foreach ($group as $elem) {
+                    // For mixed contents
+                    if ($elem == '#PCDATA') {
+                        $content = '#PCDATA';
+                    // Element has it own prop => (*|+|?)
+                    } elseif (in_array($elem{strlen($elem)-1}, $props)) {
+                        $children[substr($elem, 0, -1)] = $elem{strlen($elem)-1};
+                    // Look if the group has a default prop
+                    } elseif (isset($defaults[$key])) {
+                        $children[$elem] = $defaults[$key];
+                    // Not set, it has to appear exactly once in Validator
+                    } else {
+                        $children[$elem] = null;
+                    }
+                }
             }
-            $c[$child] = $prop;
         }
-        $this->dtd['elements'][$data[0]]['children'] = $c;
+        // Allowed children elements under this tag in the form:
+        // ..['children'] => array('tag' => (null|*|+|?), 'tag2' => ..))
+        $this->dtd['elements'][$elem_name]['children'] = $children;
+        // Either null, #PCDATA, EMPTY or ANY
+        $this->dtd['elements'][$elem_name]['content']  = $content;
     }
 
     function ATTLIST($data)
