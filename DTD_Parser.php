@@ -99,6 +99,7 @@ class XML_DTD_Parser
     {
         $elem_name  = $data[0];
         $ch = str_replace(' ', '', $data[1]);
+        //echo "\n$ch\n";
         // Content
         if ($ch{0} != '(') {
             $content = $ch;
@@ -107,7 +108,7 @@ class XML_DTD_Parser
         } else {
             $props = array('+', '*', '?');
             $content = $buff = null;
-            $groups = $defaults = array();
+            $groups = array();
             $in = 0;
             /*
                 $ch = (header,(body*|mimepart|(a*|b)+)?)*
@@ -116,19 +117,39 @@ class XML_DTD_Parser
                 switch ($ch{$i}) {
                     case '|':
                     case ',':
-                        $groups[$in][] = $buff;
-                        $buff = '';
+                        // The first connector we find is the group connector
+                        // (assumed only one connector can be set per group)
+                        if (!isset($groups[$in]['connector'])) {
+                            $groups[$in]['connector'] = $ch{$i};
+                        }
+                        // Mixed content: either text or elements
+                        if ($buff == '#PCDATA') {
+                            $content = '#PCDATA';
+                        } elseif (strlen($buff)) {
+                            $groups[$in][] = $buff;
+                            $buff = null;
+                        }
                         break;
                     case '(':
-                        $in++;
+                        $current = $in;
+                        do {
+                            $in++;
+                        } while (isset($groups[$in]));
+                        // In this place there is a group of elements instead of
+                        // only one element. This special element name remarks that
+                        $groups[$current][] = "__groupno_$in";
                         break;
                     case ')':
-                        if ($buff) {
+                        if ($buff == '#PCDATA') {
+                            $content = '#PCDATA';
+                        } elseif (strlen($buff)) {
                             $groups[$in][] = $buff;
-                            $buff = '';
+                            $buff = null;
                         }
+
                         if ($i+1 < strlen($ch) && in_array($ch{$i+1}, $props)) {
-                            $defaults[$in] = $ch{$i+1}; // Group property
+                            // Default group property ex: (a|b)* -> *
+                            $groups[$in]['defaults'] = $ch{$i+1};
                             $i++;
                         }
                         $in--;
@@ -137,47 +158,11 @@ class XML_DTD_Parser
                         $buff .= $ch{$i};
                 }
             }
-            /*
-                $groups = Array
-                (
-                    [1] => Array
-                        (
-                            [0] => header
-                        )
-                    [2] => Array
-                        (
-                            [0] => body*
-                            [1] => mimepart
-                        )
-                    [3] => Array
-                        (
-                            [0] => a*
-                            [1] => b
-                        )
-                )
-            */
-            $children = array();
-            foreach ($groups as $key => $group) {
-                foreach ($group as $elem) {
-                    // For mixed contents
-                    if ($elem == '#PCDATA') {
-                        $content = '#PCDATA';
-                    // Element has it own prop => (*|+|?)
-                    } elseif (in_array($elem{strlen($elem)-1}, $props)) {
-                        $children[substr($elem, 0, -1)] = $elem{strlen($elem)-1};
-                    // Look if the group has a default prop
-                    } elseif (isset($defaults[$key])) {
-                        $children[$elem] = $defaults[$key];
-                    // Not set, it has to appear exactly once in Validator
-                    } else {
-                        $children[$elem] = null;
-                    }
-                }
-            }
+            //print_r($groups);
         }
         // Allowed children elements under this tag in the form:
         // ..['children'] => array('tag' => (null|*|+|?), 'tag2' => ..))
-        $this->dtd['elements'][$elem_name]['children'] = $children;
+        $this->dtd['elements'][$elem_name]['children'] = $groups;
         // Either null, #PCDATA, EMPTY or ANY
         $this->dtd['elements'][$elem_name]['content']  = $content;
     }
