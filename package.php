@@ -70,6 +70,8 @@ if (PEAR::isError($result)) {
     die();
 }
 
+$package->addRole('txt', 'doc');
+
 $package->addMaintainer('cox', 'lead', 'Tomas V.V.Cox', 'cox@php.net');
 $package->addMaintainer('schst', 'lead', 'Stephan Schmidt', 'schst@php-tools.net');
 
