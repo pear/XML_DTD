@@ -35,14 +35,12 @@ require_once 'XML/Tree.php';
  * Usage:
  * 
  * <code>
- * <?php
  * $validator = XML_DTD_XmlValidator;
  * // This will check if the xml is well formed
  * // and will validate it against its DTD
  * if (!$validator->isValid($dtd_file, $xml_file)) {
  *   die($validator->getMessage());
  * }
- * ?>
  * </code>
  * 
  * @package XML_DTD
@@ -213,7 +211,7 @@ class XML_DTD_XmlValidator
         // If there are still attributes those are not declared in DTD
         if (count($node_atts) > 0) {
             $this->_errors("The attributes: '" . implode(', ', array_keys($node_atts)) .
-                           "' are not declared in DTD for tag <$name>");
+                           "' are not declared in DTD for tag <$name>", $lineno);
         }
     }
 
@@ -227,9 +225,13 @@ class XML_DTD_XmlValidator
      * @return null
      * @access private
      **/
-    function _errors($str, $lineno)
+    function _errors($str, $lineno = null)
     {
-        $this->_errors .= "line $lineno: $str\n";
+        if (is_null($lineno)) {
+            $this->_errors .= "$str\n";
+        } else {
+            $this->_errors .= "line $lineno: $str\n";
+        }
     }
 
     /**
