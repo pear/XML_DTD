@@ -30,12 +30,20 @@ DTD tree format:
         ),
         [attributes] => array(
             <att name> => array(
-                [opts] => array(),
-                [prop] => <property>
+                [opts] => (array|string), // enumerated or CDATA
+                [defaults] => (#IMPLIED|#REQUIRED|#FIXED|value),
+                [fixed] => string         // only when defaults is #FIXED
             )
         )
     )
 )
+
+TODO:
+    - Nested lists of ELEMENT values
+    - Tokenized types for ATTLIST
+    - ENTITY element
+    - <!ELEMENT %name.para; %content.para; >
+    - others ...
 */
 class XML_DTD_Parser
 {
@@ -58,6 +66,9 @@ class XML_DTD_Parser
                         continue;
                     }
                     if ($tag{$i} == '(') {
+                        if ($split == false) { // XXX (a|(b|c)|d)
+                            trigger_error("Nested lists not supported yet", E_USER_WARNING);
+                        }
                         $split = false;
                     } elseif ($tag{$i} == ')') {
                         $split = true;
@@ -96,7 +107,7 @@ class XML_DTD_Parser
             $list_prop  = null;
             $childs_str = substr($childs_str, 1, -1);
         }
-        $childs = explode('|', preg_replace('|\s+|', '', $childs_str));
+        $childs = preg_split('/\||,/', preg_replace('|\s+|', '', $childs_str));
         $props = array('+', '*', '?');
         $c = array();
         foreach ($childs as $child) {
@@ -117,21 +128,28 @@ class XML_DTD_Parser
     {
         $elem = $data[0];
         array_shift($data);
-        // XXX #FIXED not supported yet
         for ($i=0; $i < count($data) ; $i = $i + 3) {
+            $a = array();
             $att = $data[$i];
             $opts = $data[$i+1];
             if ($opts{0} == '(' && $opts{strlen($opts)-1} == ')') {
-                $a['opts'] = explode('|',
+                $a['opts'] = preg_split('/\||,/',
                                      preg_replace('|\s+|',
                                                   '',
                                                   substr($opts, 1, -1)
                                                  )
                                     );
             } else {
-                $a['opts'] = $opts;
+                $a['opts'] = $opts; // XXX ID is missing yet
             }
-            $a['prop'] = $data[$i+2];
+            $def = $data[$i+2];
+            if ($def{0} == '"' && $def{strlen($def)-1} == '"') {
+                $def = substr($def, 1, -1);
+            } elseif ($def == '#FIXED') {
+                $a['fixed'] = substr($data[$i+3], 1, -1); //strip "s
+                $i++;
+            }
+            $a['defaults'] = $def;
             $this->dtd['elements'][$elem]['attributes'][$att] = $a;
         }
     }
