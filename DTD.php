@@ -191,7 +191,7 @@ class XML_DTD_Parser
         } else {
             $content = null;
             do {
-                $children = preg_split('/([^#a-zA-Z0-9.-]+)/', $ch, -1, PREG_SPLIT_NO_EMPTY);
+                $children = preg_split('/([^#a-zA-Z0-9_.-]+)/', $ch, -1, PREG_SPLIT_NO_EMPTY);
                 if (in_array('#PCDATA', $children)) {
                     $content = '#PCDATA';
                     if (count($children) == 1) {
@@ -202,7 +202,7 @@ class XML_DTD_Parser
                 $this->dtd['elements'][$elem_name]['child_validation_dtd_regex'] = $ch;
                 // Convert the DTD regex language into PCRE regex format
                 $reg = str_replace(',', ',?', $ch);
-                $reg = preg_replace('/([#a-zA-Z0-9.-]+)/', '(,?\\0)', $reg);
+                $reg = preg_replace('/([#a-zA-Z0-9_.-]+)/', '(,?\\0)', $reg);
                 $this->dtd['elements'][$elem_name]['child_validation_pcre_regex'] = $reg;
             } while (false);
         }
