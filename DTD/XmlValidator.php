@@ -22,46 +22,75 @@
 //
 // TODO:
 //   - Give better error messages :-)
-//   - Add the line number in the error message
 //   - Implement error codes and better error reporting
 //   - Add support for //XXX Missing .. (you may find them arround the code)
 //
 
-
-/*
-Usage:
-
-$validator = XML_DTD_XmlValidator;
-// This will check if the xml is well formed
-// and will validate it against its DTD
-if (!$validator->isValid($dtd_file, $xml_file)) {
-    die($validator->getMessage());
-}
-
-*/
 require_once 'XML/DTD.php';
 require_once 'XML/Tree.php';
 
+/**
+ * XML_DTD_XmlValidator
+ * 
+ * Usage:
+ * 
+ * <code>
+ * <?php
+ * $validator = XML_DTD_XmlValidator;
+ * // This will check if the xml is well formed
+ * // and will validate it against its DTD
+ * if (!$validator->isValid($dtd_file, $xml_file)) {
+ *   die($validator->getMessage());
+ * }
+ * ?>
+ * </code>
+ * 
+ * @package XML_DTD
+ * @category XML
+ * @author Tomas V.V.Cox <cox@idecnet.com> 
+ * @copyright Copyright (c) 2003
+ * @version $Id$
+ * @access public 
+*/
 class XML_DTD_XmlValidator
 {
 
     var $dtd = array();
-    var $errors = false;
+    var $_errors = false;
 
+    /**
+     * XML_DTD_XmlValidator::isValid()
+     *
+     * Checks an XML file against its DTD
+     *  
+     * @param string $dtd_file The DTD file name
+     * @param string $xml_file The XML file
+     * @return bool True if the XML conforms the definition
+     **/
     function isValid($dtd_file, $xml_file)
     {
         $xml_tree =& new XML_Tree($xml_file);
         $nodes = $xml_tree->getTreeFromFile();
         if (PEAR::isError($nodes)) {
-            $this->errors($nodes->getMessage());
+            $this->_errors($nodes->getMessage());
             return false;
         }
         $dtd_parser =& new XML_DTD_Parser;
         $this->dtd = @$dtd_parser->parse($dtd_file);
         $this->_runTree($nodes);
-        return ($this->errors) ? false : true;
+        return ($this->_errors) ? false : true;
     }
 
+    /**
+     * XML_DTD_XmlValidator::_runTree()
+     * 
+     * Runs recursively over the XML_Tree tree of objects
+     * validating each of its nodes
+     * 
+     * @param object $node an XML_Tree_Node type object
+     * @return null
+     * @access private
+     **/
     function _runTree(&$node)
     {
         //echo "Parsing node: $node->name\n";
@@ -84,12 +113,23 @@ class XML_DTD_XmlValidator
         }
     }
 
+    /**
+     * XML_DTD_XmlValidator::_validateNode()
+     * 
+     * Validate a XML_Tree_Node: allowed childs, allowed content
+     * and allowed attributes
+     * 
+     * @param object $node an XML_Tree_Node type object
+     * @param array  $children the list of children
+     * @return null
+     * @access private
+     **/
     function _validateNode($node, $children)
     {
         $name = $node->name;
         $lineno = $node->lineno;
         if (!$this->dtd->elementIsDeclared($name)) {
-            $this->errors("No declaration for tag <$name> in DTD", $lineno);
+            $this->_errors("No declaration for tag <$name> in DTD", $lineno);
             // We don't run over the childs of undeclared elements
             // contrary of what xmllint does
             return;
@@ -102,14 +142,14 @@ class XML_DTD_XmlValidator
         do {
             // There are children when no children allowed
             if (count($children) && !count($dtd_children)) {
-                $this->errors("No children allowed under <$name>", $lineno);
+                $this->_errors("No children allowed under <$name>", $lineno);
                 break;
             }
             // Search for children names not allowed
             $was_error = false;
             foreach ($children as $child) {
                 if (!in_array($child, $dtd_children)) {
-                    $this->errors("<$child> not allowed under <$name>", $lineno);
+                    $this->_errors("<$child> not allowed under <$name>", $lineno);
                     $was_error = true;
                 }
             }
@@ -119,8 +159,8 @@ class XML_DTD_XmlValidator
                 $regex = $this->dtd->getPcreRegex($name);
                 if (!preg_match('/^'.$regex.'$/', $children_list)) {
                     $dtd_regex = $this->dtd->getDTDRegex($name);
-                    $this->errors("In element <$name> the children list found:\n'$children_list', ".
-                                  "does not conform the DTD definition: '$dtd_regex'", $lineno);
+                    $this->_errors("In element <$name> the children list found:\n'$children_list', ".
+                                   "does not conform the DTD definition: '$dtd_regex'", $lineno);
                 }
             }
         } while (false);
@@ -132,9 +172,9 @@ class XML_DTD_XmlValidator
         $dtd_content  = $this->dtd->getContent($name);
         if (strlen($node_content)) {
             if ($dtd_content == null) {
-                $this->errors("No content allowed for tag <$name>", $lineno);
+                $this->_errors("No content allowed for tag <$name>", $lineno);
             } elseif ($dtd_content == 'EMPTY') {
-                $this->errors("No content allowed for tag <$name />, declared as 'EMPTY'", $lineno);
+                $this->_errors("No content allowed for tag <$name />, declared as 'EMPTY'", $lineno);
             }
         }
         // XXX Missing validate #PCDATA or ANY
@@ -148,12 +188,12 @@ class XML_DTD_XmlValidator
             $opts    = $attvalue['opts'];
             $default = $attvalue['defaults'];
             if ($default == '#REQUIRED' && !isset($node_atts[$attname])) {
-                $this->errors("Missing required '$attname' attribute in <$name>", $lineno);
+                $this->_errors("Missing required '$attname' attribute in <$name>", $lineno);
             }
             if ($default == '#FIXED') {
                 if (isset($node_atts[$attname]) && $node_atts[$attname] != $attvalue['fixed_value']) {
-                    $this->errors("The value '{$node_atts[$attname]}' for attribute '$attname' ".
-                                  "in <$name> can only be '{$attvalue['fixed_value']}'", $lineno);
+                    $this->_errors("The value '{$node_atts[$attname]}' for attribute '$attname' ".
+                                   "in <$name> can only be '{$attvalue['fixed_value']}'", $lineno);
                 }
             }
             if (isset($node_atts[$attname])) {
@@ -161,8 +201,8 @@ class XML_DTD_XmlValidator
                 // Enumerated type validation
                 if (is_array($opts)) {
                     if (!in_array($node_val, $opts)) {
-                        $this->errors("'$node_val' value for attribute '$attname' under <$name> ".
-                                      "can only be: '". implode(', ', $opts) . "'", $lineno);
+                        $this->_errors("'$node_val' value for attribute '$attname' under <$name> ".
+                                       "can only be: '". implode(', ', $opts) . "'", $lineno);
                     }
                 }
                 unset($node_atts[$attname]);
@@ -172,19 +212,37 @@ class XML_DTD_XmlValidator
 
         // If there are still attributes those are not declared in DTD
         if (count($node_atts) > 0) {
-            $this->errors("The attributes: '" . implode(', ', array_keys($node_atts)) .
-                          "' are not declared in DTD for tag <$name>");
+            $this->_errors("The attributes: '" . implode(', ', array_keys($node_atts)) .
+                           "' are not declared in DTD for tag <$name>");
         }
     }
 
-    function errors($str, $lineno)
+    /**
+     * XML_DTD_XmlValidator::_errors()
+     * 
+     * Stores errors
+     * 
+     * @param string  $str     the error message to append
+     * @param integer $lineno  the line number where the tag is declared
+     * @return null
+     * @access private
+     **/
+    function _errors($str, $lineno)
     {
-        $this->errors .= "line $lineno: $str\n";
+        $this->_errors .= "line $lineno: $str\n";
     }
 
+    /**
+     * XML_DTD_XmlValidator::getMessage()
+     *
+     * Gets all the errors the validator found in the
+     * conformity of the xml document
+     *  
+     * @return string the error message 
+     **/
     function getMessage()
     {
-        return $this->errors;
+        return $this->_errors;
     }
 
 }
