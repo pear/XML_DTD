@@ -58,11 +58,11 @@ class XML_DTD_XmlValidator
         }
         $dtd_parser =& new XML_DTD_Parser;
         $this->dtd = @$dtd_parser->parse($dtd_file);
-        $this->runTree($nodes);
+        $this->_runTree($nodes);
         return ($this->errors) ? false : true;
     }
 
-    function runTree(&$node)
+    function _runTree(&$node)
     {
         //echo "Parsing node: $node->name\n";
         $children = array();
@@ -75,20 +75,21 @@ class XML_DTD_XmlValidator
                 $children[] = $child->name;
             }
         }
-        $this->validateNode($node, $children);
+        $this->_validateNode($node, $children);
         // Recursively run the tree
         foreach ($node->children as $child) {
             if (strlen($child->name)) {
-                $this->runTree($child);
+                $this->_runTree($child);
             }
         }
     }
 
-    function validateNode($node, $children)
+    function _validateNode($node, $children)
     {
         $name = $node->name;
+        $lineno = $node->lineno;
         if (!$this->dtd->elementIsDeclared($name)) {
-            $this->errors("No declaration for tag <$name> in DTD");
+            $this->errors("No declaration for tag <$name> in DTD", $lineno);
             // We don't run over the childs of undeclared elements
             // contrary of what xmllint does
             return;
@@ -101,14 +102,14 @@ class XML_DTD_XmlValidator
         do {
             // There are children when no children allowed
             if (count($children) && !count($dtd_children)) {
-                $this->errors("No children allowed under <$name>");
+                $this->errors("No children allowed under <$name>", $lineno);
                 break;
             }
             // Search for children names not allowed
             $was_error = false;
             foreach ($children as $child) {
                 if (!in_array($child, $dtd_children)) {
-                    $this->errors("<$child> not allowed under <$name>");
+                    $this->errors("<$child> not allowed under <$name>", $lineno);
                     $was_error = true;
                 }
             }
@@ -118,8 +119,8 @@ class XML_DTD_XmlValidator
                 $regex = $this->dtd->getPcreRegex($name);
                 if (!preg_match('/^'.$regex.'$/', $children_list)) {
                     $dtd_regex = $this->dtd->getDTDRegex($name);
-                    $this->errors("In element <$name> the children list found:\n'$children_list'\n".
-                                  "does not conform the DTD definition:\n'$dtd_regex'"); //XXX DEBUG: \nreg applied: $regex");
+                    $this->errors("In element <$name> the children list found:\n'$children_list', ".
+                                  "does not conform the DTD definition: '$dtd_regex'", $lineno);
                 }
             }
         } while (false);
@@ -131,9 +132,9 @@ class XML_DTD_XmlValidator
         $dtd_content  = $this->dtd->getContent($name);
         if (strlen($node_content)) {
             if ($dtd_content == null) {
-                $this->errors("No content allowed for tag <$name>");
+                $this->errors("No content allowed for tag <$name>", $lineno);
             } elseif ($dtd_content == 'EMPTY') {
-                $this->errors("No content allowed for tag <$name />, declared as 'EMPTY'");
+                $this->errors("No content allowed for tag <$name />, declared as 'EMPTY'", $lineno);
             }
         }
         // XXX Missing validate #PCDATA or ANY
@@ -147,12 +148,12 @@ class XML_DTD_XmlValidator
             $opts    = $attvalue['opts'];
             $default = $attvalue['defaults'];
             if ($default == '#REQUIRED' && !isset($node_atts[$attname])) {
-                $this->errors("Missing required '$attname' attribute in <$name>");
+                $this->errors("Missing required '$attname' attribute in <$name>", $lineno);
             }
             if ($default == '#FIXED') {
                 if (isset($node_atts[$attname]) && $node_atts[$attname] != $attvalue['fixed_value']) {
                     $this->errors("The value '{$node_atts[$attname]}' for attribute '$attname' ".
-                                  "in <$name> can only be '{$attvalue['fixed_value']}'");
+                                  "in <$name> can only be '{$attvalue['fixed_value']}'", $lineno);
                 }
             }
             if (isset($node_atts[$attname])) {
@@ -161,7 +162,7 @@ class XML_DTD_XmlValidator
                 if (is_array($opts)) {
                     if (!in_array($node_val, $opts)) {
                         $this->errors("'$node_val' value for attribute '$attname' under <$name> ".
-                                      "can only be: '". implode(', ', $opts) . "'");
+                                      "can only be: '". implode(', ', $opts) . "'", $lineno);
                     }
                 }
                 unset($node_atts[$attname]);
@@ -176,9 +177,9 @@ class XML_DTD_XmlValidator
         }
     }
 
-    function errors($str)
+    function errors($str, $lineno)
     {
-        $this->errors .= "$str\n-----\n";
+        $this->errors .= "line $lineno: $str\n";
     }
 
     function getMessage()

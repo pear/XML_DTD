@@ -62,7 +62,7 @@ class XML_DTD_Parser
 {
     var $dtd = array();
 
-    function parseENTITIES($str)
+    function _parseENTITIES($str)
     {
         // Find all ENTITY tags
         if (preg_match_all('|<!ENTITY\s+([^>]+)\s*>|s', $str, $m)) {
@@ -107,12 +107,14 @@ class XML_DTD_Parser
         return $str;
     }
 
-    function parse($file)
+    function parse($cont, $is_file = true)
     {
-        $cont = file_get_contents($file);
+        if ($is_file) {
+            $cont = file_get_contents($cont);
+        }
         // Remove DTD comments
         $cont = preg_replace('|<!--.*-->|Us', '', $cont);
-        $cont = $this->parseENTITIES($cont);
+        $cont = $this->_parseENTITIES($cont);
         if (preg_match_all('|<!([^>]+)>|s', $cont, $m)) {
             foreach ($m[1] as $tag) {
                 $fields = array();
@@ -142,10 +144,10 @@ class XML_DTD_Parser
                 array_shift($fields);
                 switch ($elem) {
                     case 'ELEMENT':
-                        $this->ELEMENT($fields);
+                        $this->_ELEMENT($fields);
                         break;
                     case 'ATTLIST':
-                        $this->ATTLIST($fields);
+                        $this->_ATTLIST($fields);
                         break;
                     case 'ENTITY':
                         break;
@@ -159,7 +161,7 @@ class XML_DTD_Parser
     }
 
 
-    function ELEMENT($data)
+    function _ELEMENT($data)
     {
         // $data[0] the element
         // $data[1] the string with allowed childs
@@ -194,7 +196,7 @@ class XML_DTD_Parser
         $this->dtd['elements'][$elem_name]['content']  = $content;
     }
 
-    function ATTLIST($data)
+    function _ATTLIST($data)
     {
         $elem = $data[0];
         array_shift($data);
