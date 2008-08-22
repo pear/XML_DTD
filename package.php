@@ -1,42 +1,15 @@
 <?php
-/**
- * script to automate the generation of the
- * package.xml file.
- *
- * $Id$
- *
- * @author      Stephan Schmidt <schst@php-tools.net>
- * @package     XML_DTD
- * @subpackage  Tools
- */
 
-/**
- * uses PackageFileManager
- */ 
 require_once 'PEAR/PackageFileManager.php';
 
-/**
- * current version
- */
-$version = '0.4.2';
-
-/**
- * current state
- */
+$version = '0.5.0';
 $state = 'alpha';
-
-/**
- * release notes
- */
 $notes = <<<EOT
-- fixed bug 168: underscores in element names (tuupola)
-- fixed bug 1118: missing parameters in calls to _errors() (schst)
-- fixed bug 1123: incorrect line numbers in error messages (schst)
+- switch to BSD license
+- add package.xml v2 (while retaining package.xml v1)
+- PEAR CS cleanup
 EOT;
 
-/**
- * package description
- */
 $description = <<<EOT
 Parsing of DTD files and DTD validation of XML files.
 The XML validation is done with the php sax parser, the xml extension, it does not use the domxml extension.
@@ -45,16 +18,15 @@ Currently supports most of the current XML spec, including entities, elements an
 EOT;
 
 $package = new PEAR_PackageFileManager();
-
 $result = $package->setOptions(array(
     'package'           => 'XML_DTD',
     'summary'           => 'Parsing of DTD files and DTD validation of XML files',
     'description'       => $description,
     'version'           => $version,
     'state'             => $state,
-    'license'           => 'PHP License',
+    'license'           => 'BSD License',
     'filelistgenerator' => 'cvs',
-    'ignore'            => array('package.php', 'package.xml'),
+    'ignore'            => array('package.php', 'package2.php', 'package.xml', 'package2.xml'),
     'notes'             => $notes,
     'simpleoutput'      => true,
     'baseinstalldir'    => 'XML',
@@ -72,8 +44,9 @@ if (PEAR::isError($result)) {
 
 $package->addRole('txt', 'doc');
 
-$package->addMaintainer('cox', 'lead', 'Tomas V.V.Cox', 'cox@php.net');
-$package->addMaintainer('schst', 'lead', 'Stephan Schmidt', 'schst@php-tools.net');
+//$package->addMaintainer('cox', 'lead', 'Tomas V.V.Cox', 'cox@php.net');
+//$package->addMaintainer('schst', 'lead', 'Stephan Schmidt', 'schst@php-tools.net');
+$package->addMaintainer('ashnazg', 'lead', 'Chuck Burgess', 'ashnazg@php.net');
 
 $package->addDependency('XML_Tree', '2.0b1', 'ge', 'pkg', false);
 $package->addDependency('php', '4.2.0', 'ge', 'php', false);
