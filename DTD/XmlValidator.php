@@ -41,6 +41,7 @@
  * @category  XML
  * @package   XML_DTD
  * @author    Tomas V.V.Cox <cox@idecnet.com>
+ * @author    Igor Feghali <ifeghali@php.net>
  * @copyright 2003-2008 Tomas Von Veschler Cox
  * @license   http://opensource.org/licenses/bsd-license New BSD License
  * @version   CVS: $Id$
@@ -73,6 +74,7 @@ require_once 'XML/DTD/XmlParser.php';
  * @category  XML
  * @package   XML_DTD
  * @author    Tomas V.V.Cox <cox@idecnet.com> 
+ * @author    Igor Feghali <ifeghali@php.net>
  * @copyright 2003-2008 Tomas Von Veschler Cox
  * @license   http://opensource.org/licenses/bsd-license New BSD License
  * @version   Release: @package_version@
