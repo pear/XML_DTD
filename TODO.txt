@@ -4,6 +4,8 @@
 - Read <!DOCTYPE ..> and get the DTD in XML_Validator
 - Create a real php script instead of "tests/test.php"
 - More TODO's inside the comments of .php files
+- Improve documentation
+- Add setOptions() to DTD parser and XML parser
 
 WISH:
 - Build a DTD Validator

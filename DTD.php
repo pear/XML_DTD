@@ -78,6 +78,11 @@ class XML_DTD_Parser
     var $dtd = array();
 
     /**
+     * @var boolean
+     */
+    var $folding = false;
+
+    /**
      * XML_DTD_Parser::_parseENTITIES()
      * 
      * Do entities preprocessing
@@ -153,6 +158,11 @@ class XML_DTD_Parser
         if ($is_file) {
             $cont = file_get_contents($cont);
         }
+
+        if ($this->folding) {
+            $cont = strtoupper($cont);
+        }
+
         // Remove DTD comments
         $cont = preg_replace('|<!--.*-->|Us', '', $cont);
         $cont = $this->_parseENTITIES($cont);

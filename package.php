@@ -2,12 +2,12 @@
 
 require_once 'PEAR/PackageFileManager.php';
 
-$version = '0.5.0';
+$version = '0.5.1';
 $state = 'alpha';
 $notes = <<<EOT
-- switch to BSD license
-- add package.xml v2 (while retaining package.xml v1)
-- PEAR CS cleanup
+- Dropped dependency of deprecated XML_Tree
+- Introducing the all new XML_DTD_XmlParser
+- Added switch to turn folding on/off
 EOT;
 
 $description = <<<EOT
@@ -46,9 +46,10 @@ $package->addRole('txt', 'doc');
 
 //$package->addMaintainer('cox', 'lead', 'Tomas V.V.Cox', 'cox@php.net');
 //$package->addMaintainer('schst', 'lead', 'Stephan Schmidt', 'schst@php-tools.net');
-$package->addMaintainer('ashnazg', 'lead', 'Chuck Burgess', 'ashnazg@php.net');
+//$package->addMaintainer('ashnazg', 'lead', 'Chuck Burgess', 'ashnazg@php.net');
+$package->addMaintainer('ifeghali', 'lead', 'Igor Feghali', 'ifeghali@php.net');
 
-$package->addDependency('XML_Tree', '2.0b1', 'ge', 'pkg', false);
+$package->addDependency('XML_Parser', '1.3.1', 'ge', 'pkg', false);
 $package->addDependency('php', '4.2.0', 'ge', 'php', false);
 
 if (isset($_GET['make']) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {

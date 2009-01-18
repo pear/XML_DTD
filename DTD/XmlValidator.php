@@ -52,9 +52,9 @@
  */
 require_once 'XML/DTD.php';
 /**
- * @uses XML_Tree
+ * @uses XML_DTD_XmlParser
  */
-require_once 'XML/Tree.php';
+require_once 'XML/DTD/XmlParser.php';
 
 /**
  * XML_DTD_XmlValidator
@@ -100,14 +100,16 @@ class XML_DTD_XmlValidator
      */
     function isValid($dtd_file, $xml_file)
     {
-        $xml_tree =& new XML_Tree($xml_file);
-        $nodes    = $xml_tree->getTreeFromFile();
+        $nodes =& XML_DTD_XmlParser::factory($xml_file);
         if (PEAR::isError($nodes)) {
             $this->_errors($nodes->getMessage());
             return false;
         }
-        $dtd_parser =& new XML_DTD_Parser;
+
+        $dtd_parser =& new XML_DTD_Parser();
+        $dtd_parser->folding = true;
         $this->dtd  = @$dtd_parser->parse($dtd_file);
+
         $this->_runTree($nodes);
         return ($this->_errors) ? false : true;
     }
@@ -125,27 +127,10 @@ class XML_DTD_XmlValidator
      */
     function _runTree(&$node)
     {
-        //echo "Parsing node: $node->name\n";
-        $children = array();
-        $lines    = array();
+        $this->_validateNode($node);
 
-        // Get the list of children under the parent node
         foreach ($node->children as $child) {
-            // a text node
-            if (!strlen($child->name)) {
-                $children[] = '#PCDATA';
-            } else {
-                $children[] = $child->name;
-            }
-            $lines[] = $child->lineno;
-        }
-
-        $this->_validateNode($node, $children, $lines);
-        // Recursively run the tree
-        foreach ($node->children as $child) {
-            if (strlen($child->name)) {
-                $this->_runTree($child);
-            }
+            $this->_runTree($child);
         }
     }
 
@@ -156,16 +141,15 @@ class XML_DTD_XmlValidator
      * and allowed attributes
      * 
      * @param object $node     an XML_Tree_Node type object
-     * @param array  $children the list of children
-     * @param array  $linenos  linenumbers of the children
      *
      * @return void
      * @access private
      */
-    function _validateNode($node, $children, $linenos)
+    function _validateNode($node)
     {
         $name   = $node->name;
-        $lineno = $node->lineno;
+        $lineno = $node->coord();
+
         if (!$this->dtd->elementIsDeclared($name)) {
             $this->_errors("No declaration for tag <$name> in DTD", $lineno);
             // We don't run over the childs of undeclared elements
@@ -179,24 +163,27 @@ class XML_DTD_XmlValidator
         $dtd_children = $this->dtd->getChildren($name);
         do {
             // There are children when no children allowed
-            if (count($children) && !count($dtd_children)) {
+            if (count($node->children) && !count($dtd_children)) {
                 $this->_errors("No children allowed under <$name>", $lineno);
                 break;
             }
+
             // Search for children names not allowed
             $was_error = false;
             $i         = 0;
-            foreach ($children as $child) {
-                if (!in_array($child, $dtd_children)) {
-                    $this->_errors("<$child> not allowed under <$name>", 
-                        $linenos[$i]);
+            foreach ($node->children as $child) {
+                $child_name = $child->name;
+                if (!in_array($child_name, $dtd_children)) {
+                    $this->_errors("<$child_name> not allowed under <$name>", 
+                        $child->coord());
                     $was_error = true;
                 }
                 $i++;
             }
+           
             // Validate the order of the children
             if (!$was_error && count($dtd_children)) {
-                $children_list = implode(',', $children);
+                $children_list = implode(',', $node->getChildrenNames());
                 $regex         = $this->dtd->getPcreRegex($name);
                 if (!preg_match('/^'.$regex.'$/', $children_list)) {
                     $dtd_regex = $this->dtd->getDTDRegex($name);
@@ -213,7 +200,7 @@ class XML_DTD_XmlValidator
         //
         $node_content = $node->content;
         $dtd_content  = $this->dtd->getContent($name);
-        if (strlen($node_content)) {
+        if ($node_content == '#PCDATA') {
             if ($dtd_content == null) {
                 $this->_errors("No content allowed for tag <$name>", $lineno);
             } elseif ($dtd_content == 'EMPTY') {
@@ -227,7 +214,7 @@ class XML_DTD_XmlValidator
         // Attributes validation
         //
         $atts      = $this->dtd->getAttributes($name);
-        $node_atts = $node->attributes;
+        $node_atts = $node->attr;
         foreach ($atts as $attname => $attvalue) {
             $opts    = $attvalue['opts'];
             $default = $attvalue['defaults'];
@@ -235,6 +222,7 @@ class XML_DTD_XmlValidator
                 $this->_errors("Missing required '$attname' attribute in <$name>", 
                     $lineno);
             }
+            // FIXME: make case insensitive comparison
             if ($default == '#FIXED') {
                 if (isset($node_atts[$attname]) 
                     && $node_atts[$attname] != $attvalue['fixed_value']
@@ -249,7 +237,8 @@ class XML_DTD_XmlValidator
                 $node_val = $node_atts[$attname];
                 // Enumerated type validation
                 if (is_array($opts)) {
-                    if (!in_array($node_val, $opts)) {
+                    // FIXME: strtoupper() should be applied only when folding=true
+                    if (!in_array(strtoupper($node_val), $opts)) {
                         $this->_errors("'$node_val' value "
                             . "for attribute '$attname' under <$name> "
                             . "can only be: '". implode(', ', $opts) . "'", $lineno);

@@ -12,14 +12,14 @@ $desc =
     . "may still be unsupported."
 ;
 
-$version = '0.5.0';
+$version = '0.5.1';
 $apiver  = '0.5.0';
 $state   = 'alpha';
 
 $notes = <<<EOT
-- switch to BSD license
-- add package.xml v2 (while retaining package.xml v1)
-- PEAR CS cleanup
+- Dropped dependency of deprecated XML_Tree
+- Introducing the all new XML_DTD_XmlParser
+- Added switch to turn folding on/off
 EOT;
 
 $package = PEAR_PackageFileManager2::importOptions(
@@ -31,11 +31,6 @@ $package = PEAR_PackageFileManager2::importOptions(
     'baseinstalldir'    => 'XML',
     'packagefile'       => 'package2.xml',
     'packagedirectory'  => '.'));
-
-if (PEAR::isError($result)) {
-    echo $result->getMessage();
-    die();
-}
 
 $package->clearDeps();
 
@@ -52,7 +47,7 @@ $package->setReleaseStability($state);
 $package->setNotes($notes);
 $package->setPhpDep('4.2.0');
 $package->setPearinstallerDep('1.4.3');
-$package->addPackageDepWithChannel('required', 'XML_Tree', 'pear.php.net', '2.0b1');
+$package->addPackageDepWithChannel('required', 'XML_Parser', 'pear.php.net', '1.3.1');
 $package->addIgnore(array('package.php', 'package2.php', 'package.xml', 'package2.xml'));
 $package->addReplacement('DTD.php', 'package-info', '@package_version@', 'version');
 $package->addReplacement('DTD/XmlValidator.php', 'package-info', '@package_version@', 'version');
