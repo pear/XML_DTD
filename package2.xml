@@ -20,10 +20,16 @@
   <name>Chuck Burgess</name>
   <user>ashnazg</user>
   <email>ashnazg@php.net</email>
+  <active>no</active>
+ </lead>
+ <lead>
+  <name>Igor Feghali</name>
+  <user>ifeghali</user>
+  <email>ifeghali@php.net</email>
   <active>yes</active>
  </lead>
- <date>2009-01-18</date>
- <time>21:31:50</time>
+ <date>2009-01-24</date>
+ <time>10:54:06</time>
  <version>
   <release>0.5.1</release>
   <api>0.5.0</api>
@@ -72,10 +78,10 @@
  <dependencies>
   <required>
    <php>
-    <min>4.2.0</min>
+    <min>4.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.3</min>
+    <min>1.5.4</min>
    </pearinstaller>
    <package>
     <name>XML_Parser</name>
@@ -95,7 +101,7 @@
     <release>alpha</release>
     <api>alpha</api>
    </stability>
-   <date>2009-01-18</date>
+   <date>2009-01-24</date>
    <license uri="http://opensource.org/licenses/bsd-license">BSD License</license>
    <notes>- Dropped dependency of deprecated XML_Tree
 - Introducing the all new XML_DTD_XmlParser

@@ -36,7 +36,7 @@ Currently supports most of the current XML spec, including entities, elements an
   </maintainers>
  <release>
   <version>0.5.1</version>
-  <date>2009-01-18</date>
+  <date>2009-01-24</date>
   <license>BSD License</license>
   <state>alpha</state>
   <notes>- Dropped dependency of deprecated XML_Tree
@@ -44,8 +44,8 @@ Currently supports most of the current XML spec, including entities, elements an
 - Added switch to turn folding on/off
   </notes>
   <deps>
-   <dep type="pkg" rel="ge" version="2.0b1" optional="no">XML_Tree</dep>
-   <dep type="php" rel="ge" version="4.2.0" optional="no"/>
+   <dep type="php" rel="ge" version="4.3.0" optional="no"/>
+   <dep type="pkg" rel="ge" version="1.5.4" optional="no">PEAR</dep>
    <dep type="pkg" rel="ge" version="1.3.1" optional="no">XML_Parser</dep>
   </deps>
   <filelist>
@@ -109,7 +109,7 @@ Currently supports most of the current XML spec, including entities, elements an
    </release>
    <release>
     <version>0.5.1</version>
-    <date>2009-01-18</date>
+    <date>2009-01-24</date>
     <license>BSD License</license>
     <state>alpha</state>
     <notes>- Dropped dependency of deprecated XML_Tree

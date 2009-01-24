@@ -29,6 +29,7 @@ $result = $package->setOptions(array(
     'ignore'            => array('package.php', 'package2.php', 'package.xml', 'package2.xml'),
     'notes'             => $notes,
     'simpleoutput'      => true,
+    'cleardependencies' => true,
     'baseinstalldir'    => 'XML',
     'packagedirectory'  => './',
     'dir_roles'         => array('docs' => 'doc',
@@ -49,8 +50,9 @@ $package->addRole('txt', 'doc');
 //$package->addMaintainer('ashnazg', 'lead', 'Chuck Burgess', 'ashnazg@php.net');
 $package->addMaintainer('ifeghali', 'lead', 'Igor Feghali', 'ifeghali@php.net');
 
+$package->addDependency('php',        '4.3.0', 'ge', 'php', false);
+$package->addDependency('PEAR',       '1.5.4', 'ge', 'pkg', false);
 $package->addDependency('XML_Parser', '1.3.1', 'ge', 'pkg', false);
-$package->addDependency('php', '4.2.0', 'ge', 'php', false);
 
 if (isset($_GET['make']) || (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'make')) {
     $result = $package->writePackageFile();
