@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0" packagerversion="1.7.2">
+<package version="1.0" packagerversion="1.8.1">
  <name>XML_DTD</name>
  <summary>Parsing of DTD files and DTD validation of XML files</summary>
  <description>Parsing of DTD files and DTD validation of XML files.
@@ -35,13 +35,13 @@ Currently supports most of the current XML spec, including entities, elements an
   </maintainer>
   </maintainers>
  <release>
-  <version>0.5.1</version>
-  <date>2009-01-24</date>
+  <version>0.5.2</version>
+  <date>2009-04-27</date>
   <license>BSD License</license>
   <state>alpha</state>
-  <notes>- Dropped dependency of deprecated XML_Tree
-- Introducing the all new XML_DTD_XmlParser
-- Added switch to turn folding on/off
+  <notes>- Fixed circular reference which was leaking memory
+- Due to PHP 4 and 5 differences in object handling, the XML Parser had to be rewritten to be PHP 4 compatible again.
+- Error when parsing empty XML
   </notes>
   <deps>
    <dep type="php" rel="ge" version="4.3.0" optional="no"/>
@@ -115,6 +115,16 @@ Currently supports most of the current XML spec, including entities, elements an
     <notes>- Dropped dependency of deprecated XML_Tree
 - Introducing the all new XML_DTD_XmlParser
 - Added switch to turn folding on/off
+    </notes>
+   </release>
+   <release>
+    <version>0.5.2</version>
+    <date>2009-04-27</date>
+    <license>BSD License</license>
+    <state>alpha</state>
+    <notes>- Fixed circular reference which was leaking memory
+- Due to PHP 4 and 5 differences in object handling, the XML Parser had to be rewritten to be PHP 4 compatible again.
+- Error when parsing empty XML
     </notes>
    </release>
  </changelog>

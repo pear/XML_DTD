@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.7.2" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.8.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>XML_DTD</name>
  <channel>pear.php.net</channel>
  <summary>Parsing of DTD files and DTD validation of XML files</summary>
@@ -28,10 +28,10 @@
   <email>ifeghali@php.net</email>
   <active>yes</active>
  </lead>
- <date>2009-01-24</date>
- <time>10:54:06</time>
+ <date>2009-04-27</date>
+ <time>23:13:38</time>
  <version>
-  <release>0.5.1</release>
+  <release>0.5.2</release>
   <api>0.5.0</api>
  </version>
  <stability>
@@ -39,9 +39,11 @@
   <api>alpha</api>
  </stability>
  <license uri="http://opensource.org/licenses/bsd-license">BSD License</license>
- <notes>- Dropped dependency of deprecated XML_Tree
-- Introducing the all new XML_DTD_XmlParser
-- Added switch to turn folding on/off</notes>
+ <notes>
+- Fixed circular reference which was leaking memory
+- Due to PHP 4 and 5 differences in object handling, the XML Parser had to be rewritten to be PHP 4 compatible again.
+- Error when parsing empty XML
+ </notes>
  <contents>
   <dir baseinstalldir="XML" name="/">
    <dir name="DTD">
@@ -94,6 +96,23 @@
  <changelog>
   <release>
    <version>
+    <release>0.5.2</release>
+    <api>0.5.0</api>
+   </version>
+   <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+   </stability>
+   <date>2009-04-27</date>
+   <license uri="http://opensource.org/licenses/bsd-license">BSD License</license>
+   <notes>
+- Fixed circular reference which was leaking memory
+- Due to PHP 4 and 5 differences in object handling, the XML Parser had to be rewritten to be PHP 4 compatible again.
+- Error when parsing empty XML
+   </notes>
+  </release>
+  <release>
+   <version>
     <release>0.5.1</release>
     <api>0.5.0</api>
    </version>
@@ -103,9 +122,11 @@
    </stability>
    <date>2009-01-24</date>
    <license uri="http://opensource.org/licenses/bsd-license">BSD License</license>
-   <notes>- Dropped dependency of deprecated XML_Tree
+   <notes>
+- Dropped dependency of deprecated XML_Tree
 - Introducing the all new XML_DTD_XmlParser
-- Added switch to turn folding on/off</notes>
+- Added switch to turn folding on/off
+   </notes>
   </release>
   <release>
    <version>
@@ -118,9 +139,11 @@
    </stability>
    <date>2008-08-22</date>
    <license uri="http://opensource.org/licenses/bsd-license">BSD License</license>
-   <notes>- switch to BSD license
+   <notes>
+- switch to BSD license
 - add package.xml v2 (while retaining package.xml v1)
-- PEAR CS cleanup</notes>
+- PEAR CS cleanup
+   </notes>
   </release>
   <release>
    <version>
@@ -133,9 +156,11 @@
    </stability>
    <date>2004-05-17</date>
    <license uri="http://www.php.net/license">PHP License</license>
-   <notes>- fixed bug 168: underscores in element names (tuupola)
+   <notes>
+- fixed bug 168: underscores in element names (tuupola)
 - fixed bug 1118: missing parameters in calls to _errors() (schst)
-- fixed bug 1123: incorrect line numbers in error messages (schst)</notes>
+- fixed bug 1123: incorrect line numbers in error messages (schst)
+   </notes>
   </release>
   <release>
    <version>
@@ -148,7 +173,9 @@
    </stability>
    <date>2003-09-11</date>
    <license uri="http://www.example.com">PHP 3.0</license>
-   <notes>Initial release as XML_DTD (previously was DTD)</notes>
+   <notes>
+Initial release as XML_DTD (previously was DTD)
+   </notes>
   </release>
  </changelog>
 </package>

@@ -12,14 +12,14 @@ $desc =
     . "may still be unsupported."
 ;
 
-$version = '0.5.1';
+$version = '0.5.2';
 $apiver  = '0.5.0';
 $state   = 'alpha';
 
 $notes = <<<EOT
-- Dropped dependency of deprecated XML_Tree
-- Introducing the all new XML_DTD_XmlParser
-- Added switch to turn folding on/off
+- Fixed circular reference which was leaking memory
+- Due to PHP 4 and 5 differences in object handling, the XML Parser had to be rewritten to be PHP 4 compatible again.
+- Error when parsing empty XML
 EOT;
 
 $package = PEAR_PackageFileManager2::importOptions(
