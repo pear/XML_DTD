@@ -11,7 +11,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2008 Igor Feghali
+ * Copyright (c) 2008-2009 Igor Feghali
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
  * @category  XML
  * @package   XML_DTD
  * @author    Igor Feghali <ifeghali@php.net>
- * @copyright 2008 Igor Feghali
+ * @copyright 2008-2009 Igor Feghali
  * @license   http://opensource.org/licenses/bsd-license New BSD License
  * @version   CVS: $Id$
  * @link      http://pear.php.net/package/XML_DTD
@@ -75,7 +75,6 @@ class XML_DTD_XmlParser extends XML_Parser
 {
     var $children = array();
     var $ptr      = null;
-    var $stack    = array();
     var $folding  = true;
 
     /**
@@ -89,7 +88,7 @@ class XML_DTD_XmlParser extends XML_Parser
     function XML_DTD_XmlParser()
     {
         parent::XML_Parser();
-        $this->ptr = &$this;
+        $this->ptr =& $this;
     }
 
     /**
@@ -104,7 +103,7 @@ class XML_DTD_XmlParser extends XML_Parser
      */
     function factory($xml)
     {
-        $p = &new XML_DTD_XmlParser();
+        $p =& new XML_DTD_XmlParser();
 
         $result = $p->setInputFile($xml);
         if (PEAR::isError($result)) {
@@ -115,6 +114,12 @@ class XML_DTD_XmlParser extends XML_Parser
         if (PEAR::isError($result)) {
             return $result;
         }
+
+        /**
+         * Preventing the circular reference memory leak.
+         * See: http://bugs.php.net/bug.php?id=33595
+         */
+        unset($p->_handlerObj, $p->ptr);
 
         return $p->children[0];
     }
@@ -131,15 +136,15 @@ class XML_DTD_XmlParser extends XML_Parser
      */
     function startHandler($xp, $name, $attr)
     {
-        $e         = new XML_DTD_XmlElement();
+        $e         =& new XML_DTD_XmlElement();
         $e->name   = $name;
         $e->attr   = $attr;
         $e->lineno = @xml_get_current_line_number($xp);
         $e->colno  = @xml_get_current_column_number($xp);
+        $e->parent =& $this->ptr;
 
-        $this->ptr->children[] = $e;
-        array_push($this->stack, $this->ptr);
-        $this->ptr = &$e;
+        $this->ptr->children[] =& $e;
+        $this->ptr             =& $e;
     }
 
     /**
@@ -153,7 +158,15 @@ class XML_DTD_XmlParser extends XML_Parser
      */
     function endHandler($xp, $name)
     {
-        $this->ptr = array_pop($this->stack);
+        $tmp       =& $this->ptr;
+        $this->ptr =& $this->ptr->parent;
+
+        /**
+         * We do not need the reference to the parent object anymore. Clean it 
+         * up to prevent the circular reference memory leak.
+         * See: http://bugs.php.net/bug.php?id=33595
+         */
+        unset($tmp->parent);
     }
 
     /**
@@ -192,6 +205,7 @@ class XML_DTD_XmlElement
     var $content  = 'EMPTY';
     var $attr     = array();
     var $children = array();
+    var $parent   = null;
     var $lineno   = 0;
     var $colno    = 0;
 
