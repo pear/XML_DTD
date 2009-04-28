@@ -121,7 +121,11 @@ class XML_DTD_XmlParser extends XML_Parser
          */
         unset($p->_handlerObj, $p->ptr);
 
-        return $p->children[0];
+        if (count($p->children)) {
+            return $p->children[0];
+        } else {
+            return PEAR::raiseError('empty XML?');
+        }
     }
 
     /**
