@@ -444,4 +444,3 @@ class XML_DTD_Tree
         return isset($this->dtd['elements'][$elem]);
     }
 }
-?>

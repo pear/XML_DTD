@@ -75,4 +75,3 @@ function help() {
 	echo "Passing both, will try to validate <xml file> with <dtd file>\n";
 	exit;
 }
-?>

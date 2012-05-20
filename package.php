@@ -110,4 +110,3 @@ if (PEAR::isError($result)) {
     echo $result->getMessage();
     die();
 }
-?>

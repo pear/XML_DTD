@@ -293,4 +293,3 @@ class XML_DTD_XmlValidator
     }
 
 }
-?>
