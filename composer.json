@@ -1,0 +1,25 @@
+{
+    "authors": [
+        {
+            "email": "cox@php.net",
+            "name": "Tomas V.V.Cox",
+            "role": "Lead"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "./"
+        ]
+    },
+    "description": "More info available on: http://pear.php.net/package/XML_DTD",
+    "license": "BSD License",
+    "name": "pear/xml_dtd",
+    "support": {
+        "issues": "http:///bugs/search.php?cmd=display&package_name[]=XML_DTD",
+        "source": "https://github.com/pear/XML_DTD"
+    },
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
